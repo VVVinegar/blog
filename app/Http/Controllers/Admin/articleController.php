@@ -14,7 +14,7 @@ class articleController extends commonController
 {
     //get.admin/article    全部文章列表
     function index(){
-        $data=article::orderBy('art_id','desc')->paginate(2);
+        $data=article::orderBy('art_id','desc')->paginate(5);
         return view('admin.article.index',compact('data'));
     }
 

@@ -13,7 +13,7 @@
         <div class="result_wrap">
             <!--快捷导航 开始-->
             <div class="result_title">
-                <h3>添加文章</h3>
+                <h3>文章列表</h3>
             </div>
             <div class="result_content">
                 <div class="short_wrap">

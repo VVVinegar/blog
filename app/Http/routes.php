@@ -11,20 +11,19 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::group(['namespace'=>'Home'],function (){
+    Route::get('/','IndexController@index');
+    Route::get('/cate/{cate_id}','IndexController@cate');
+    Route::get('/a/{art_id}','IndexController@article');
 });
 
-Route::group(['prefix'=>'admin','namespace'=>'Admin'],function (){
-    Route::get('/', function () {
-        return view('welcome');
-    });
+Route::group(['prefix'=>'admin/','namespace'=>'Admin'],function (){
     Route::any('login', 'loginController@login');
     Route::get('code', 'loginController@code');
 });
 
 Route::group(['middleware'=>'admin.login','prefix'=>'admin','namespace'=>'Admin'],function (){
-    Route::get('index', 'indexController@index');
+    Route::get('/', 'indexController@index');
     Route::get('info', 'indexController@info');
     Route::get('quit', 'loginController@quit');
     Route::any('resetPSW','indexController@resetPSW');
@@ -40,6 +39,8 @@ Route::group(['middleware'=>'admin.login','prefix'=>'admin','namespace'=>'Admin'
     Route::post('navs/changeOrder','navsController@changeOrder');
     Route::resource('navs','navsController');
 
+    Route::get('config/putFile','ConfigController@putFile');
+    Route::post('config/changeContent','ConfigController@changeContent');
     Route::post('config/changeOrder','ConfigController@changeOrder');
     Route::resource('config','ConfigController');
 

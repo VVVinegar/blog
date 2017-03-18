@@ -16,10 +16,10 @@ class ConfigController extends commonController
         foreach ($data as $k=>$v){
             switch ($v->conf_type){
                 case 'input':
-                    $data[$k]->_html='<input type="text" name="conf_content" class="lg" value="'.$v->conf_content.'">';
+                    $data[$k]->_html='<input type="text" name="conf_content[]" class="lg" value="'.$v->conf_content.'">';
                     break;
                 case 'textarea':
-                    $data[$k]->_html='<textarea type="text" name="conf_content" class="lg">'.$v->conf_content.'</textarea>';
+                    $data[$k]->_html='<textarea type="text" name="conf_content[]" class="lg">'.$v->conf_content.'</textarea>';
                     break;
                 case 'radio':
                     $arr=explode('，',$v->conf_value);
@@ -27,13 +27,29 @@ class ConfigController extends commonController
                     foreach ($arr as $m=>$n){
                         $r=explode('|',$n);
                         $c=$v->conf_content==$r[0]? ' checked ': '';
-                        $str.='<input type="radio" name="conf_content" value="'.$r[0].'" '.$c.' >'.$r[1];
+                        $str.='<input type="radio" name="conf_content[]" value="'.$r[0].'" '.$c.' >'.$r[1];
                     }
                     $data[$k]->_html=$str;
                     break;
             }
         }
         return view('admin.config.index',compact('data'));
+    }
+
+    function changeContent(){
+        $input=Input::except('_token');
+        foreach ($input['conf_id'] as $k=>$v){
+            Config::where('conf_id',$v)->update(['conf_content'=>$input['conf_content'][$k]]);
+        }
+        $this->putFile();
+        return back()->with('errors','更新成功！');
+    }
+
+    function putFile(){
+        $config=Config::pluck('conf_content','conf_name')->all();
+        $path=base_path().'/config/web.php';
+        $str="<?php return ".var_export($config,true).";";
+        file_put_contents($path,$str);
     }
 
     function changeOrder(){
@@ -81,6 +97,7 @@ class ConfigController extends commonController
         if($validate->passes()){
             $re=config::create($input);
             if($re){
+                $this->putFile();
                 return redirect('admin/config');
             }else{
                 return back()->with('errors','数据库填充失败，请稍后再试。');
@@ -111,6 +128,7 @@ class ConfigController extends commonController
     function destroy($conf_id){
         $re=config::where('conf_id',$conf_id)->delete();
         if($re){
+            $this->putFile();
             $data=[
                 'state'=>1,
                 'msg'=>'删除成功！'
